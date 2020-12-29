@@ -834,6 +834,7 @@ public class Gen3RomHandler extends AbstractGBRomHandler {
             pkmn.secondaryType = null;
         }
         pkmn.catchRate = rom[offset + Gen3Constants.bsCatchRateOffset] & 0xFF;
+        pkmn.expYield = rom[offset + Gen3Constants.bsExpYieldOffset] & 0xFF;
         pkmn.growthCurve = ExpCurve.fromByte(rom[offset + Gen3Constants.bsGrowthCurveOffset]);
         // Abilities
         pkmn.ability1 = rom[offset + Gen3Constants.bsAbility1Offset] & 0xFF;
@@ -872,6 +873,7 @@ public class Gen3RomHandler extends AbstractGBRomHandler {
             rom[offset + Gen3Constants.bsSecondaryTypeOffset] = Gen3Constants.typeToByte(pkmn.secondaryType);
         }
         rom[offset + Gen3Constants.bsCatchRateOffset] = (byte) pkmn.catchRate;
+        rom[offset + Gen3Constants.bsExpYieldOffset] = (byte) pkmn.expYield;
         rom[offset + Gen3Constants.bsGrowthCurveOffset] = pkmn.growthCurve.toByte();
 
         rom[offset + Gen3Constants.bsAbility1Offset] = (byte) pkmn.ability1;
@@ -3081,6 +3083,7 @@ public class Gen3RomHandler extends AbstractGBRomHandler {
             available |= MiscTweak.RANDOMIZE_PC_POTION.getValue();
         }
         available |= MiscTweak.BAN_LUCKY_EGG.getValue();
+        available |= MiscTweak.DISABLE_EXPERIENCE.getValue();
         return available;
     }
 
@@ -3101,6 +3104,17 @@ public class Gen3RomHandler extends AbstractGBRomHandler {
             nonBadItems.banSingles(Gen3Constants.luckyEggIndex);
         } else if (tweak == MiscTweak.RANDOMIZE_PC_POTION) {
             randomizePCPotion();
+        } else if (tweak == MiscTweak.DISABLE_EXPERIENCE) {
+            disableExperience();
+        }
+    }
+
+    private void disableExperience() {
+        for (Pokemon pkmn : pokesInternal) {
+            if (pkmn != null) {
+                pkmn.expYield = 0;
+                pkmn.growthCurve = ExpCurve.SLOW;
+            }
         }
     }
 
